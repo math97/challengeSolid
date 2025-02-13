@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { registerOrganizationUseCase } from '@/use-cases/registerOrganization'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 
@@ -7,37 +7,27 @@ export async function registerOrganization(
   reply: FastifyReply,
 ) {
   const registerOrganizationBodySchema = z.object({
-    name: z.string().nonempty(),
-    email: z.string().email(),
-    whatsapp: z.string(),
-    address: z.string(),
-    postalCode: z.string(),
     city: z.string(),
-    state: z.string(),
+    email: z.string().email(),
+    name: z.string().optional(),
+    whatsapp: z.string().optional(),
+    address: z.string().optional(),
+    postalCode: z.string().optional(),
+    state: z.string().optional(),
     description: z.string().optional(),
   })
 
-  const {
-    name,
-    email,
-    address,
-    city,
-    postalCode,
-    state,
-    whatsapp,
-    description,
-  } = registerOrganizationBodySchema.parse(request.body)
-  await prisma.organization.create({
-    data: {
-      name,
-      email,
-      address,
-      city,
-      postalCode,
-      state,
-      whatsapp,
-      description,
-    },
-  })
-  return reply.status(201).send()
+  const body = registerOrganizationBodySchema.parse(request.body)
+
+  try {
+    const organization = await registerOrganizationUseCase(body)
+    console.log(organization)
+    return reply.status(201).send(organization)
+  } catch (error) {
+    console.log(error)
+
+    return reply
+      .status(400)
+      .send({ message: 'Not able to create organization' })
+  }
 }
