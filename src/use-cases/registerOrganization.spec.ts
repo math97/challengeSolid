@@ -17,6 +17,7 @@ describe('Create Org Use Case', () => {
   it('should be able to create a new org', async () => {
     const organizationData: registerOrganizationUseCaseRequest = {
       name: 'Test Organization',
+      password: '123456',
       email: 'test@organization.com',
       address: '123 Test St',
       whatsapp: '123-456-7890',
@@ -34,6 +35,7 @@ describe('Create Org Use Case', () => {
   it('should not be able to create a new org with the same email', async () => {
     const organizationData: registerOrganizationUseCaseRequest = {
       name: 'Test Organization',
+      password: '123456',
       email: 'test@organization.com',
       address: '123 Test St',
       whatsapp: '123-456-7890',
@@ -46,7 +48,7 @@ describe('Create Org Use Case', () => {
     await sut.execute(organizationData)
 
     await expect(sut.execute(organizationData)).rejects.toThrow(
-      'Organization already exists',
+      'Organization already exists.',
     )
   })
 })

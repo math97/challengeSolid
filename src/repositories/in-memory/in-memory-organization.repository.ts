@@ -8,6 +8,7 @@ export class InMemoryOrganizationRepository implements IOrganizationRepository {
   async create(data: Prisma.OrganizationCreateInput): Promise<Organization> {
     const organization: Organization = {
       id: randomUUID(),
+      password_hash: data.password_hash,
       email: data.email,
       city: data.city,
       name: data.name || '',
