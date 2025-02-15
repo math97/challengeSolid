@@ -6,7 +6,7 @@ Challenge of module from rocketseat course!
 FindAFriend API
 
 ## Regras da aplicação
-- [ ] It should be possible to register as an ORG
+- [X] It should be possible to register as an ORG
 - [ ] It should be possible to log in as an ORG
 - [ ] It should be possible to register a pet
 - [ ] It should be possible to list all pets available for adoption in a city
