@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { PrismaOrganizationRepository } from '@/repositories/prisma/prisma-organization-repository'
 import { Organization } from '@prisma/client'
 
 interface registerOrganizationUseCaseRequest {
@@ -17,15 +17,15 @@ type registerOrganizationUseCaseResponse = { organization: Organization }
 export async function registerOrganizationUseCase(
   organizationData: registerOrganizationUseCaseRequest,
 ): Promise<registerOrganizationUseCaseResponse> {
-  const organizationByEmail = await prisma.organization.findUnique({
-    where: { email: organizationData.email },
-  })
+  const organizationRepository = new PrismaOrganizationRepository()
+
+  const organizationByEmail = await organizationRepository.findByEmail(
+    organizationData.email,
+  )
 
   if (organizationByEmail) throw new Error('Organization already exists')
 
-  const organization = await prisma.organization.create({
-    data: organizationData,
-  })
+  const organization = await organizationRepository.create(organizationData)
 
   return { organization }
 }
