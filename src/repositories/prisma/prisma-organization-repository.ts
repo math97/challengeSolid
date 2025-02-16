@@ -12,4 +12,8 @@ export class PrismaOrganizationRepository implements IOrganizationRepository {
   async findByEmail(email: string): Promise<Organization | null> {
     return prisma.organization.findUnique({ where: { email } })
   }
+
+  async findById(id: string): Promise<Organization | null> {
+    return prisma.organization.findUnique({ where: { id } })
+  }
 }
