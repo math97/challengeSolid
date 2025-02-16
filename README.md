@@ -7,7 +7,7 @@ FindAFriend API
 
 ## Regras da aplicação
 - [X] It should be possible to register as an ORG
-- [ ] It should be possible to log in as an ORG
+- [X] It should be possible to log in as an ORG
 - [ ] It should be possible to register a pet
 - [ ] It should be possible to list all pets available for adoption in a city
 - [ ] It should be possible to filter pets by their characteristics
