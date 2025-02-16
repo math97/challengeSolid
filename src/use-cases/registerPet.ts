@@ -32,7 +32,13 @@ export class RegisterPetUseCase {
     if (!organization) throw new OrganizationNotFoundError()
 
     const pet = await this.petRepository.create({
-      ...data,
+      name: data.name,
+      about: data.about,
+      age: data.age,
+      size: data.size,
+      energy: data.energy,
+      independent: data.independent,
+      environment: data.environment,
       organization_id: organization.id,
     })
 

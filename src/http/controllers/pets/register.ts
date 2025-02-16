@@ -23,7 +23,7 @@ export async function registerPet(
   const registerPetUseCase = makeRegisterPetUseCase()
 
   try {
-    const pet = registerPetUseCase.execute(body)
+    const pet = await registerPetUseCase.execute(body)
 
     return reply.status(201).send(pet)
   } catch (error) {
