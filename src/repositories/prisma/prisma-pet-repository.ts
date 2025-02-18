@@ -7,4 +7,15 @@ export class PrismaPetRepository implements IPetRepository {
     const pet = await prisma.pet.create({ data })
     return pet
   }
+
+  async findAll(city: string): Promise<Pet[]> {
+    const pets = await prisma.pet.findMany({
+      where: {
+        organization: {
+          city,
+        },
+      },
+    })
+    return pets
+  }
 }

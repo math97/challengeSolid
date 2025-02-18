@@ -13,7 +13,7 @@ describe('RegisterPetUseCase', () => {
 
   beforeEach(() => {
     organizationRepository = new InMemoryOrganizationRepository()
-    petRepository = new InMemoryPetRepository()
+    petRepository = new InMemoryPetRepository(organizationRepository)
     registerOrganizationUseCase = new RegisterOrganizationUseCase(
       organizationRepository,
     )
