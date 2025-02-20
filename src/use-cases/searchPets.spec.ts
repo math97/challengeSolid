@@ -31,12 +31,42 @@ describe('SearchPetsUseCase', () => {
     await petsRepository.create({ ...petData[1] })
     await petsRepository.create({ ...petData2[0] })
 
-    const pets = await sut.execute(organization.city)
+    const { pets } = await sut.execute({ city: organization.city })
 
     expect(pets).toHaveLength(2)
 
-    const pets2 = await sut.execute(organization2.city)
+    const { pets: pets2 } = await sut.execute({ city: organization2.city })
 
     expect(pets2).toHaveLength(1)
+  })
+
+  describe('search with filters', () => {
+    it.each([
+      { filter: 'age', value: 2, expected: 1 },
+      { filter: 'energy', value: 'High', expected: 1 },
+      { filter: 'environment', value: 'Indoor', expected: 1 },
+      { filter: 'independent', value: 'low', expected: 1 },
+      { filter: 'size', value: 'Medium', expected: 1 },
+    ])(
+      'should be able to search pets by city and $filter',
+      async ({ filter, value, expected }) => {
+        const organizationData = await mockOrganization()
+        const organization = await organizationRepository.create({
+          ...organizationData[0],
+        })
+
+        const petData = await mockPet(organization.id)
+
+        await petsRepository.create({ ...petData[0] })
+        await petsRepository.create({ ...petData[1] })
+
+        const { pets } = await sut.execute({
+          city: organization.city,
+          [filter]: value,
+        })
+
+        expect(pets).toHaveLength(expected)
+      },
+    )
   })
 })
