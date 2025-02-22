@@ -11,7 +11,7 @@ FindAFriend API
 - [X] It should be possible to register a pet
 - [X] It should be possible to list all pets available for adoption in a city
 - [X] It should be possible to filter pets by their characteristics
-- [ ] It should be possible to view details of a pet for adoption
+- [X] It should be possible to view details of a pet for adoption
 
 ## Regras de negócio
 
