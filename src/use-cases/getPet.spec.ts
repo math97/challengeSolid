@@ -31,6 +31,8 @@ describe('GetPetUseCase', () => {
   })
 
   it('should throw an error if pet is not found', async () => {
-    expect(sut.execute({ id: 'invalid-id' })).rejects.toThrow('Pet not found')
+    await expect(sut.execute({ id: 'invalid-id' })).rejects.toThrow(
+      'Pet not found',
+    )
   })
 })
