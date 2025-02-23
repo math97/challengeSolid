@@ -8,7 +8,7 @@ export const searchPets = async (
 ) => {
   const searchPetsBodySchema = z.object({
     city: z.string(),
-    age: z.number().optional(),
+    age: z.coerce.number().optional(),
     size: z.string().optional(),
     energy: z.string().optional(),
     independent: z.string().optional(),

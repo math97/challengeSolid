@@ -23,8 +23,6 @@ describe('Register Pet (E2E)', () => {
       .post('/organization/session')
       .send({ email: organization.email, password: organization.password })
 
-    console.log('authResponse', authResponse.body)
-
     const response = await request(app.server)
       .post('/pet')
       .set('Authorization', `Bearer ${authResponse.body.token}`)
