@@ -1,9 +1,7 @@
 import { InMemoryOrganizationRepository } from '@/repositories/in-memory/in-memory-organization.repository'
-import {
-  RegisterOrganizationUseCase,
-  registerOrganizationUseCaseRequest,
-} from './registerOrganization'
+import { RegisterOrganizationUseCase } from './registerOrganization'
 import { describe, beforeEach, it, expect } from 'vitest'
+import { makeOrganization } from '@/test/factories/makeOrganization'
 
 describe('Create Org Use Case', () => {
   let organizationsRepository: InMemoryOrganizationRepository
@@ -15,39 +13,17 @@ describe('Create Org Use Case', () => {
   })
 
   it('should be able to create a new org', async () => {
-    const organizationData: registerOrganizationUseCaseRequest = {
-      name: 'Test Organization',
-      password: '123456',
-      email: 'test@organization.com',
-      address: '123 Test St',
-      whatsapp: '123-456-7890',
-      city: 'Test City',
-      description: 'Test Description',
-      postalCode: '12345',
-      state: 'TS',
-    }
-    const { organization } = await sut.execute(organizationData)
+    const { organization } = await sut.execute(makeOrganization())
 
     expect(organizationsRepository.organizations).toHaveLength(1)
     expect(organization.id).toEqual(expect.any(String))
   })
 
   it('should not be able to create a new org with the same email', async () => {
-    const organizationData: registerOrganizationUseCaseRequest = {
-      name: 'Test Organization',
-      password: '123456',
-      email: 'test@organization.com',
-      address: '123 Test St',
-      whatsapp: '123-456-7890',
-      city: 'Test City',
-      description: 'Test Description',
-      postalCode: '12345',
-      state: 'TS',
-    }
+    const organization = makeOrganization()
+    await sut.execute(organization)
 
-    await sut.execute(organizationData)
-
-    await expect(sut.execute(organizationData)).rejects.toThrow(
+    await expect(sut.execute(organization)).rejects.toThrow(
       'Organization already exists.',
     )
   })

@@ -1,9 +1,9 @@
 import { InMemoryOrganizationRepository } from '@/repositories/in-memory/in-memory-organization.repository'
 import { InMemoryPetRepository } from '@/repositories/in-memory/in-memory-pet.repository'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { mockOrganization } from '@/test/mock/organization'
-import { mockPet } from '@/test/mock/pet'
 import { GetPetUseCase } from './getPet'
+import { makeOrganizationHashed } from '@/test/factories/makeOrganization'
+import { makePet } from '@/test/factories/makePet'
 
 describe('GetPetUseCase', () => {
   let petsRepository: InMemoryPetRepository
@@ -17,13 +17,13 @@ describe('GetPetUseCase', () => {
   })
 
   it('should return pet successfully', async () => {
-    const organizationData = await mockOrganization()
-    const organization = await organizationRepository.create({
-      ...organizationData[0],
-    })
+    const organization = await organizationRepository.create(
+      makeOrganizationHashed(),
+    )
 
-    const petData = await mockPet(organization.id)
-    const expectedPet = await petsRepository.create({ ...petData[0] })
+    const expectedPet = await petsRepository.create(
+      makePet({ organizationId: organization.id }),
+    )
 
     const { pet } = await sut.execute({ id: expectedPet.id })
 

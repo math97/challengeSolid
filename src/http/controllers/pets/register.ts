@@ -15,7 +15,7 @@ export async function registerPet(
     energy: z.string(),
     independent: z.string(),
     environment: z.string(),
-    organizationId: z.string(),
+    organization_id: z.string(),
   })
 
   const body = registerPetBodySchema.parse(request.body)

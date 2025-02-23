@@ -11,7 +11,7 @@ interface IRegisterPetRequest {
   energy: string
   independent: string
   environment: string
-  organizationId: string
+  organization_id: string
 }
 
 type registerPetUseCaseResponse = { pet: Pet }
@@ -26,7 +26,7 @@ export class RegisterPetUseCase {
     data: IRegisterPetRequest,
   ): Promise<registerPetUseCaseResponse> {
     const organization = await this.organizationRepository.findById(
-      data.organizationId,
+      data.organization_id,
     )
 
     if (!organization) throw new OrganizationNotFoundError()
