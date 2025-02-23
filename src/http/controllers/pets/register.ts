@@ -15,15 +15,19 @@ export async function registerPet(
     energy: z.string(),
     independent: z.string(),
     environment: z.string(),
-    organization_id: z.string(),
   })
 
   const body = registerPetBodySchema.parse(request.body)
 
+  const organizationId = request.user.sub
+
   const registerPetUseCase = makeRegisterPetUseCase()
 
   try {
-    const pet = await registerPetUseCase.execute(body)
+    const pet = await registerPetUseCase.execute({
+      ...body,
+      organization_id: organizationId,
+    })
 
     return reply.status(201).send(pet)
   } catch (error) {
