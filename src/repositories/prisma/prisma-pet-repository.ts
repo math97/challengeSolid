@@ -21,7 +21,6 @@ export class PrismaPetRepository implements IPetRepository {
         },
       },
     })
-
     return pets
   }
 

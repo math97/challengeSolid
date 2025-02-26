@@ -134,13 +134,13 @@ describe('Search Pets (E2E)', () => {
   })
 
   it('should be able to search pets by city and environment', async () => {
-    const org = makeOrganization()
+    const organization = makeOrganization()
 
-    await request(app.server).post('/organization').send(org)
+    await request(app.server).post('/organization').send(organization)
 
     const authResponse = await request(app.server)
       .post('/organization/session')
-      .send({ email: org.email, password: org.password })
+      .send({ email: organization.email, password: organization.password })
 
     await request(app.server)
       .post('/pet')
@@ -149,85 +149,120 @@ describe('Search Pets (E2E)', () => {
 
     const response = await request(app.server)
       .get('/pets')
-      .query({ city: org.city, environment: 'indoor' })
+      .query({ city: organization.city, environment: 'indoor' })
 
     expect(response.status).toBe(200)
     expect(response.body.pets).toHaveLength(1)
   })
 
-  it('should be able to search pets by city and all filters', async () => {
-    const org = makeOrganization()
+  it('should be able to search pets by city and independent', async () => {
+    const organization = makeOrganization()
 
-    await request(app.server).post('/organization').send(org)
+    await request(app.server).post('/organization').send(organization)
 
     const authResponse = await request(app.server)
       .post('/organization/session')
-      .send({ email: org.email, password: org.password })
+      .send({ email: organization.email, password: organization.password })
 
-    const pets = [
-      makePet({
-        age: 1,
-        size: 'small',
-        energy: 'low',
-        environment: 'indoor',
-      }),
-      makePet({
-        age: 2,
-        size: 'medium',
-        energy: 'medium',
-        environment: 'outdoor',
-      }),
-      makePet({
-        age: 1,
-        size: 'large',
-        energy: 'high',
-        environment: 'indoor',
-      }),
-      makePet({
-        age: 4,
-        size: 'small',
-        energy: 'low',
-        environment: 'outdoor',
-      }),
-      makePet({
-        age: 5,
-        size: 'medium',
-        energy: 'medium',
-        environment: 'indoor',
-      }),
-    ]
+    await request(app.server)
+      .post('/pet')
+      .set('Authorization', `Bearer ${authResponse.body.token}`)
+      .send(makePet({ independent: 'indoor' }))
 
-    await Promise.all(
-      pets.map((pet) =>
-        request(app.server)
-          .post('/pet')
-          .set('Authorization', `Bearer ${authResponse.body.token}`)
-          .send(pet),
-      ),
-    )
+    const response = await request(app.server)
+      .get('/pets')
+      .query({ city: organization.city, independent: 'indoor' })
 
-    let response = await request(app.server).get('/pets').query({
-      city: org.city,
-      age: 1,
-      size: 'small',
-      energy: 'low',
-      environment: 'indoor',
-    })
-
+    expect(response.status).toBe(200)
     expect(response.body.pets).toHaveLength(1)
+  })
 
-    response = await request(app.server).get('/pets').query({
-      city: org.city,
-      size: 'medium',
+  describe('using all filters', () => {
+    const organization = makeOrganization()
+
+    beforeAll(async () => {
+      await request(app.server).post('/organization').send(organization)
+
+      const authResponse = await request(app.server)
+        .post('/organization/session')
+        .send({ email: organization.email, password: organization.password })
+
+      const pets = [
+        makePet({
+          age: 1,
+          size: 'small',
+          energy: 'low',
+          environment: 'indoor',
+        }),
+        makePet({
+          age: 2,
+          size: 'medium',
+          energy: 'medium',
+          environment: 'outdoor',
+        }),
+        makePet({
+          age: 1,
+          size: 'large',
+          energy: 'high',
+          environment: 'indoor',
+        }),
+        makePet({
+          age: 4,
+          size: 'small',
+          energy: 'low',
+          environment: 'outdoor',
+        }),
+        makePet({
+          age: 5,
+          size: 'medium',
+          energy: 'medium',
+          environment: 'indoor',
+        }),
+      ]
+
+      await Promise.all(
+        pets.map((pet) =>
+          request(app.server)
+            .post('/pet')
+            .set('Authorization', `Bearer ${authResponse.body.token}`)
+            .send(pet),
+        ),
+      )
     })
 
-    expect(response.body.pets).toHaveLength(2)
+    it.each([
+      {
+        age: 1,
+        size: 'small',
+        energy: 'low',
+        environment: 'indoor',
+        expectedLength: 1,
+      },
+      {
+        age: 1,
+        size: 'medium',
+        expectedLength: 2,
+      },
+      {
+        age: 1,
+        energy: 'low',
+        expectedLength: 2,
+      },
+    ])(
+      'should be able to search pets by city and all filters',
+      async ({ age, expectedLength, energy, environment, size }) => {
+        const response = await request(app.server)
+          .get('/pets')
+          .query({
+            city: organization.city,
+            ...(age && { age }),
+            ...(size && { size }),
+            ...(energy && { energy }),
+            ...(environment && { environment }),
+          })
 
-    response = await request(app.server).get('/pets').query({
-      city: org.city,
-      energy: 'low',
-    })
-
-    expect(response.body.pets).toHaveLength(2)
+        expect(response.body.pets).toHaveLength(expectedLength)
+      },
+    )
   })
 })

@@ -7,6 +7,7 @@ type Overwrite = {
   size?: string
   energy?: string
   environment?: string
+  independent?: string
 }
 
 export function makePet(overwrite?: Overwrite) {
@@ -23,6 +24,8 @@ export function makePet(overwrite?: Overwrite) {
       overwrite?.energy ??
       faker.helpers.arrayElement(['low', 'medium', 'high']),
     environment: faker.helpers.arrayElement(['indoor', 'outdoor']),
-    independent: faker.helpers.arrayElement(['low', 'medium', 'high']),
+    independent:
+      overwrite?.independent ??
+      faker.helpers.arrayElement(['low', 'medium', 'high']),
   }
 }
