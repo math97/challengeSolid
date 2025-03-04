@@ -3,6 +3,7 @@ import crypto from 'node:crypto'
 
 type Overwrite = {
   password?: string
+  city?: string
 }
 
 export function makeOrganizationHashed(overwrite?: Overwrite) {
@@ -13,7 +14,7 @@ export function makeOrganizationHashed(overwrite?: Overwrite) {
     name: faker.company.name(),
     address: faker.location.streetAddress(),
     whatsapp: faker.phone.number(),
-    city: faker.location.city(),
+    city: overwrite?.password ?? faker.location.city(),
     postalCode: faker.location.zipCode(),
     state: faker.location.state(),
     description: faker.lorem.sentence(),

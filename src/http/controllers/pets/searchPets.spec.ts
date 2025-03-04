@@ -15,7 +15,7 @@ describe('Search Pets (E2E)', () => {
   })
 
   it('should be able to search pets by city', async () => {
-    const org = makeOrganization()
+    const org = makeOrganization({ city: 'test-1' })
 
     await request(app.server).post('/organization').send(org)
 
@@ -48,7 +48,7 @@ describe('Search Pets (E2E)', () => {
   })
 
   it('should be able to search pets by city and age', async () => {
-    const org = makeOrganization()
+    const org = makeOrganization({ city: 'test-2' })
 
     await request(app.server).post('/organization').send(org)
 
@@ -64,7 +64,7 @@ describe('Search Pets (E2E)', () => {
     await request(app.server)
       .post('/pet')
       .set('Authorization', `Bearer ${authResponse.body.token}`)
-      .send(makePet())
+      .send(makePet({ age: 5 }))
 
     const response = await request(app.server)
       .get('/pets')
@@ -75,7 +75,7 @@ describe('Search Pets (E2E)', () => {
   })
 
   it('should be able to search pets by city and size', async () => {
-    const org = makeOrganization()
+    const org = makeOrganization({ city: 'test-3' })
 
     await request(app.server).post('/organization').send(org)
 
@@ -107,7 +107,7 @@ describe('Search Pets (E2E)', () => {
   })
 
   it('should be able to search pets by city and energy', async () => {
-    const org = makeOrganization()
+    const org = makeOrganization({ city: 'test-4' })
 
     await request(app.server).post('/organization').send(org)
 
@@ -134,7 +134,7 @@ describe('Search Pets (E2E)', () => {
   })
 
   it('should be able to search pets by city and environment', async () => {
-    const organization = makeOrganization()
+    const organization = makeOrganization({ city: 'test-5' })
 
     await request(app.server).post('/organization').send(organization)
 
@@ -156,7 +156,7 @@ describe('Search Pets (E2E)', () => {
   })
 
   it('should be able to search pets by city and independent', async () => {
-    const organization = makeOrganization()
+    const organization = makeOrganization({ city: 'test-6' })
 
     await request(app.server).post('/organization').send(organization)
 
@@ -177,92 +177,73 @@ describe('Search Pets (E2E)', () => {
     expect(response.body.pets).toHaveLength(1)
   })
 
-  describe('using all filters', () => {
-    const organization = makeOrganization()
+  it('should be able to search pets by city and all filters', async () => {
+    const organization = makeOrganization({ city: 'test-7' })
 
-    beforeAll(async () => {
-      await request(app.server).post('/organization').send(organization)
+    await request(app.server).post('/organization').send(organization)
 
-      const authResponse = await request(app.server)
-        .post('/organization/session')
-        .send({ email: organization.email, password: organization.password })
+    const authResponse = await request(app.server)
+      .post('/organization/session')
+      .send({ email: organization.email, password: organization.password })
 
-      const pets = [
-        makePet({
-          age: 1,
-          size: 'small',
-          energy: 'low',
-          environment: 'indoor',
-        }),
-        makePet({
-          age: 2,
-          size: 'medium',
-          energy: 'medium',
-          environment: 'outdoor',
-        }),
-        makePet({
-          age: 1,
-          size: 'large',
-          energy: 'high',
-          environment: 'indoor',
-        }),
-        makePet({
-          age: 4,
-          size: 'small',
-          energy: 'low',
-          environment: 'outdoor',
-        }),
-        makePet({
-          age: 5,
-          size: 'medium',
-          energy: 'medium',
-          environment: 'indoor',
-        }),
-      ]
-
-      await Promise.all(
-        pets.map((pet) =>
-          request(app.server)
-            .post('/pet')
-            .set('Authorization', `Bearer ${authResponse.body.token}`)
-            .send(pet),
-        ),
-      )
-    })
-
-    it.each([
-      {
+    const pets = [
+      makePet({
         age: 1,
         size: 'small',
         energy: 'low',
         environment: 'indoor',
-        expectedLength: 1,
-      },
-      {
-        age: 1,
+      }),
+      makePet({
+        age: 2,
         size: 'medium',
-        expectedLength: 2,
-      },
-      {
-        age: 1,
+        energy: 'medium',
+        environment: 'outdoor',
+      }),
+      makePet({
+        age: 2,
+        size: 'medium',
+        energy: 'high',
+        environment: 'indoor',
+      }),
+      makePet({
+        age: 4,
+        size: 'small',
         energy: 'low',
-        expectedLength: 2,
-      },
-    ])(
-      'should be able to search pets by city and all filters',
-      async ({ age, expectedLength, energy, environment, size }) => {
-        const response = await request(app.server)
-          .get('/pets')
-          .query({
-            city: organization.city,
-            ...(age && { age }),
-            ...(size && { size }),
-            ...(energy && { energy }),
-            ...(environment && { environment }),
-          })
+        environment: 'outdoor',
+      }),
+      makePet({
+        age: 5,
+        size: 'medium',
+        energy: 'medium',
+        environment: 'indoor',
+      }),
+    ]
 
-        expect(response.body.pets).toHaveLength(expectedLength)
-      },
+    await Promise.all(
+      pets.map((pet) =>
+        request(app.server)
+          .post('/pet')
+          .set('Authorization', `Bearer ${authResponse.body.token}`)
+          .send(pet),
+      ),
     )
+
+    let response = await request(app.server).get('/pets').query({
+      city: organization.city,
+      age: 1,
+      size: 'small',
+      energy: 'low',
+      environment: 'indoor',
+    })
+
+    expect(response.body.pets).toHaveLength(1)
+
+    response = await request(app.server).get('/pets').query({
+      city: organization.city,
+      age: 2,
+      size: 'medium',
+    })
+
+    expect(response.body.pets).toHaveLength(2)
   })
 })

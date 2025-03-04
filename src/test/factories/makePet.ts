@@ -23,7 +23,9 @@ export function makePet(overwrite?: Overwrite) {
     energy:
       overwrite?.energy ??
       faker.helpers.arrayElement(['low', 'medium', 'high']),
-    environment: faker.helpers.arrayElement(['indoor', 'outdoor']),
+    environment:
+      overwrite?.environment ??
+      faker.helpers.arrayElement(['indoor', 'outdoor']),
     independent:
       overwrite?.independent ??
       faker.helpers.arrayElement(['low', 'medium', 'high']),
