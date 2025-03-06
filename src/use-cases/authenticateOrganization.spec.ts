@@ -26,13 +26,15 @@ describe('AuthenticateOrganizationUseCase', () => {
       ...organizationData,
     })
 
-    const { organization: organizationAuthenticated } = await sut.execute({
+    const response = await sut.execute({
       email: organizationData.email,
       password,
     })
 
-    expect(organizationAuthenticated).toHaveProperty('id')
-    expect(organizationAuthenticated).toEqual(organization)
+    expect(response.isRight()).toBe(true)
+    if (response.isRight()) {
+      expect(response.value.organization.id).toEqual(organization.id)
+    }
   })
 
   it('should throw an error if credentials are invalid', async () => {
@@ -44,8 +46,12 @@ describe('AuthenticateOrganizationUseCase', () => {
       ...organizationData,
     })
 
-    await expect(
-      sut.execute({ email: organizationData.email, password: 'wrongpassword' }),
-    ).rejects.toBeInstanceOf(InvalidCredentialsError)
+    const response = await sut.execute({
+      email: organizationData.email,
+      password: 'wrongpassword',
+    })
+
+    expect(response.isLeft()).toBe(true)
+    expect(response.value).toBeInstanceOf(InvalidCredentialsError)
   })
 })
