@@ -23,17 +23,20 @@ describe('RegisterPetUseCase', () => {
       makeOrganizationHashed(),
     )
 
-    const { pet } = await sut.execute(
+    const response = await sut.execute(
       makePet({ organizationId: organization.id }),
     )
 
     expect(petRepository.pets).toHaveLength(1)
-    expect(pet.id).toEqual(expect.any(String))
+    expect(petRepository.pets[0].id).toEqual(expect.any(String))
+    expect(response.isRight()).toBe(true)
   })
 
   it('should throw an error if organization is not found', async () => {
-    await expect(
-      sut.execute(makePet({ organizationId: 'fakeOrganizationId' })),
-    ).rejects.toThrow(OrganizationNotFoundError)
+    const response = await sut.execute(
+      makePet({ organizationId: 'fakeOrganizationId' }),
+    )
+    expect(response.isLeft()).toBe(true)
+    expect(response.value).toBeInstanceOf(OrganizationNotFoundError)
   })
 })

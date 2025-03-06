@@ -2,6 +2,7 @@ import { IOrganizationRepository } from '@/repositories/organization.repository'
 import { IPetRepository } from '@/repositories/pet.repository'
 import { Pet } from '@prisma/client'
 import { OrganizationNotFoundError } from './error/organization-not-found-error'
+import { Either, left, right } from '@/error'
 
 interface IRegisterPetRequest {
   name: string
@@ -14,7 +15,10 @@ interface IRegisterPetRequest {
   organization_id: string
 }
 
-type registerPetUseCaseResponse = { pet: Pet }
+type registerPetUseCaseResponse = Either<
+  OrganizationNotFoundError,
+  { pet: Pet }
+>
 
 export class RegisterPetUseCase {
   constructor(
@@ -29,7 +33,7 @@ export class RegisterPetUseCase {
       data.organization_id,
     )
 
-    if (!organization) throw new OrganizationNotFoundError()
+    if (!organization) return left(new OrganizationNotFoundError())
 
     const pet = await this.petRepository.create({
       name: data.name,
@@ -42,6 +46,6 @@ export class RegisterPetUseCase {
       organization_id: organization.id,
     })
 
-    return { pet }
+    return right({ pet })
   }
 }

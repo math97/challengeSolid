@@ -31,13 +31,19 @@ describe('SearchPetsUseCase', () => {
     await petsRepository.create({ ...petData[1] })
     await petsRepository.create({ ...petData2[0] })
 
-    const { pets } = await sut.execute({ city: organization.city })
+    const response = await sut.execute({ city: organization.city })
+    const secondResponse = await sut.execute({ city: organization2.city })
 
-    expect(pets).toHaveLength(2)
+    expect(response.isRight()).toBeTruthy()
+    expect(secondResponse.isRight()).toBeTruthy()
 
-    const { pets: pets2 } = await sut.execute({ city: organization2.city })
+    if (response.isRight()) {
+      expect(response.value?.pets).toHaveLength(2)
+    }
 
-    expect(pets2).toHaveLength(1)
+    if (secondResponse.isRight()) {
+      expect(secondResponse.value?.pets).toHaveLength(1)
+    }
   })
 
   describe('search with filters', () => {
@@ -60,12 +66,15 @@ describe('SearchPetsUseCase', () => {
         await petsRepository.create({ ...petData[0] })
         await petsRepository.create({ ...petData[1] })
 
-        const { pets } = await sut.execute({
+        const response = await sut.execute({
           city: organization.city,
           [filter]: value,
         })
 
-        expect(pets).toHaveLength(expected)
+        expect(response.isRight()).toBeTruthy()
+        if (response.isRight()) {
+          expect(response.value?.pets).toHaveLength(expected)
+        }
       },
     )
   })

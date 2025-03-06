@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { GetPetUseCase } from './getPet'
 import { makeOrganizationHashed } from '@/test/factories/makeOrganization'
 import { makePet } from '@/test/factories/makePet'
+import { PetNotFoundError } from './error/pet-not-found-error'
 
 describe('GetPetUseCase', () => {
   let petsRepository: InMemoryPetRepository
@@ -25,14 +26,17 @@ describe('GetPetUseCase', () => {
       makePet({ organizationId: organization.id }),
     )
 
-    const { pet } = await sut.execute({ id: expectedPet.id })
+    const response = await sut.execute({ id: expectedPet.id })
 
-    expect(pet).toEqual(expectedPet)
+    expect(response.isRight()).toBe(true)
+    if (response.isRight()) {
+      expect(response.value.pet).toEqual(expectedPet)
+    }
   })
 
   it('should throw an error if pet is not found', async () => {
-    await expect(sut.execute({ id: 'invalid-id' })).rejects.toThrow(
-      'Pet not found',
-    )
+    const response = await sut.execute({ id: 'invalid-id' })
+    expect(response.isLeft()).toBe(true)
+    expect(response.value).toBeInstanceOf(PetNotFoundError)
   })
 })
