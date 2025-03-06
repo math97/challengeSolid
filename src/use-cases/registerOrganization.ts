@@ -2,6 +2,7 @@ import { PrismaOrganizationRepository } from '@/repositories/prisma/prisma-organ
 import { Organization } from '@prisma/client'
 import { OrganizationAlreadyExistsError } from './error/organization-already-exist-error'
 import { hash } from 'bcryptjs'
+import { Either, left, right } from '@/error'
 
 export interface registerOrganizationUseCaseRequest {
   city: string
@@ -15,7 +16,10 @@ export interface registerOrganizationUseCaseRequest {
   description?: string
 }
 
-type registerOrganizationUseCaseResponse = { organization: Organization }
+type registerOrganizationUseCaseResponse = Either<
+  OrganizationAlreadyExistsError,
+  { organization: Organization }
+>
 
 export class RegisterOrganizationUseCase {
   constructor(private organizationRepository: PrismaOrganizationRepository) {}
@@ -27,7 +31,7 @@ export class RegisterOrganizationUseCase {
       organizationData.email,
     )
 
-    if (organizationByEmail) throw new OrganizationAlreadyExistsError()
+    if (organizationByEmail) return left(new OrganizationAlreadyExistsError())
 
     const password_hash = await hash(organizationData.password, 6)
 
@@ -43,6 +47,6 @@ export class RegisterOrganizationUseCase {
       password_hash,
     })
 
-    return { organization }
+    return right({ organization })
   }
 }

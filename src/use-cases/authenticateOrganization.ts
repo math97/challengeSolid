@@ -2,15 +2,17 @@ import { IOrganizationRepository } from '@/repositories/organization.repository'
 import { Organization } from '@prisma/client'
 import { compare } from 'bcryptjs'
 import { InvalidCredentialsError } from './error/invalid-credentials-error'
+import { Either, left, right } from '@/error'
 
 interface AuthenticateOrganizationRequest {
   email: string
   password: string
 }
 
-interface AuthenticateUseCaseResponse {
-  organization: Organization
-}
+type AuthenticateUseCaseResponse = Either<
+  InvalidCredentialsError,
+  { organization: Organization }
+>
 
 export class AuthenticateOrganizationUseCase {
   constructor(private organizationRepository: IOrganizationRepository) {}
@@ -21,17 +23,15 @@ export class AuthenticateOrganizationUseCase {
   }: AuthenticateOrganizationRequest): Promise<AuthenticateUseCaseResponse> {
     const organization = await this.organizationRepository.findByEmail(email)
 
-    if (!organization) throw new InvalidCredentialsError()
+    if (!organization) return left(new InvalidCredentialsError())
 
     const doestPasswordMatches = await compare(
       password,
       organization.password_hash,
     )
 
-    if (!doestPasswordMatches) throw new InvalidCredentialsError()
+    if (!doestPasswordMatches) return left(new InvalidCredentialsError())
 
-    return {
-      organization,
-    }
+    return right({ organization })
   }
 }
