@@ -18,11 +18,11 @@ export const searchPets = async (
   const body = searchPetsBodySchema.parse(request.query)
   const searchPets = makeSearchPetUseCase()
 
-  try {
-    const { pets } = await searchPets.execute(body)
+  const response = await searchPets.execute(body)
 
-    return reply.status(200).send({ pets })
-  } catch (error) {
+  if (response.isLeft()) {
     return reply.status(500).send({ message: 'Internal server error' })
   }
+
+  return reply.status(200).send({ pets: response.value.pets })
 }

@@ -1,4 +1,3 @@
-import { OrganizationAlreadyExistsError } from '@/use-cases/error/organization-already-exist-error'
 import { makeRegisterOrganizationUseCase } from '@/use-cases/factories/make-register-organization-use-case'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
@@ -22,12 +21,10 @@ export async function registerOrganization(
 
   const body = registerOrganizationBodySchema.parse(request.body)
 
-  try {
-    const organization = await registerOrganizationUseCase.execute(body)
-    return reply.status(201).send(organization)
-  } catch (error) {
-    if (error instanceof OrganizationAlreadyExistsError) {
-      return reply.status(400).send({ message: error.message })
-    }
+  const response = await registerOrganizationUseCase.execute(body)
+  if (response.isLeft()) {
+    return reply.status(400).send({ message: response.value.message })
   }
+
+  return reply.status(201).send(response.value.organization)
 }

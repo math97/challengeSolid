@@ -1,4 +1,3 @@
-import { OrganizationNotFoundError } from '@/use-cases/error/organization-not-found-error'
 import { makeRegisterPetUseCase } from '@/use-cases/factories/make-register-pet-use-case'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
@@ -23,16 +22,14 @@ export async function registerPet(
 
   const registerPetUseCase = makeRegisterPetUseCase()
 
-  try {
-    const pet = await registerPetUseCase.execute({
-      ...body,
-      organization_id: organizationId,
-    })
+  const response = await registerPetUseCase.execute({
+    ...body,
+    organization_id: organizationId,
+  })
 
-    return reply.status(201).send(pet)
-  } catch (error) {
-    if (error instanceof OrganizationNotFoundError) {
-      return reply.status(400).send({ message: error.message })
-    }
+  if (response.isLeft()) {
+    return reply.status(400).send({ message: response.value.message })
   }
+
+  return reply.status(201).send(response.value.pet)
 }

@@ -29,7 +29,7 @@ describe('Get Pet (E2E)', () => {
       .send(makePet())
 
     const getPetResponse = await request(app.server)
-      .get(`/pet/${response.body.pet.id}`)
+      .get(`/pet/${response.body.id}`)
       .set('Authorization', `Bearer ${authResponse.body.token}`)
 
     expect(getPetResponse.status).toBe(200)
